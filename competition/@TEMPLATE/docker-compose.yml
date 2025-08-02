@@ -5,9 +5,9 @@ services:
     volumes:
       - ./input:/kaggle/input
       - ./working:/kaggle/working
-      - ./template:/kaggle/template
+      - ./experiment:/kaggle/experiment
       - ./tool:/kaggle/tool
-      - ../library:/kaggle/library
+      - ./library:/kaggle/library
       - ./setting.ini:/kaggle/setting.ini
       - ${HOME}/.kaggle/.env:/kaggle/.env
       - ${HOME}/.kaggle/kaggle.json:/root/.config/kaggle/kaggle.json
