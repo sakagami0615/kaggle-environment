@@ -1,0 +1,49 @@
+services:
+  project:
+    image: gcr.io/kaggle-gpu-images/python:latest
+    container_name: ${KAGGLE_CONTAINER_NAME}
+    ports:
+      - "${JUPYTER_PORT}:8888"
+    volumes:
+      - ${INPUT_FOLDER}:/kaggle/input
+      - ${WORKING_FOLDER}:/kaggle/working
+      - ${RESULT_FOLDER}:/kaggle/result
+      - ${MLRUNS_FOLDER}:/mlruns
+      - ${LOG_FOLDER}:/kaggle/log
+      - ../../config/kaggle.json:/root/.kaggle/kaggle.json
+    working_dir: /kaggle
+    shm_size: ${PYTORCH_CONTAINER_SHM_SIZE}
+    gpus: all
+    environment:
+      - TZ=Asia/Tokyo
+      - PYTHONUNBUFFERED=1
+      - NVIDIA_VISIBLE_DEVICES=all
+      - MLFLOW_TRACKING_URI=http://mlflow:${MLFLOW_PORT}
+    restart: unless-stopped
+    tty: true
+    stdin_open: true
+    command: >
+      jupyter lab --ip=0.0.0.0
+                  --allow-root
+                  --LabApp.token=''
+
+  mlflow:
+    build:
+      context: ./mlflow
+      dockerfile: Dockerfile
+    image: mlflow-with-kaggle:latest
+    pull_policy: never
+    container_name: ${MLFLOW_CONTAINER_NAME}
+    ports:
+      - "${MLFLOW_PORT}:5000"
+    volumes:
+      - ${MLRUNS_FOLDER}:/mlruns
+    environment:
+      - TZ=Asia/Tokyo
+    restart: unless-stopped
+    tty: true
+    command: >
+      mlflow server --host 0.0.0.0
+                    --port ${MLFLOW_PORT}
+                    --backend-store-uri sqlite:////mlruns/mlflow.db
+                    --default-artifact-root file:///mlruns/artifacts

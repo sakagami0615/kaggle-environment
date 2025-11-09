@@ -1,0 +1,8 @@
+train:
+  model:
+    rf:
+      random_state: 10 
+      warm_start: True
+      n_estimators: 26
+      max_depth: 6 
+      max_features: sqrt
